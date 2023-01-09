@@ -25,6 +25,9 @@
     "vite": "^4.0.0"
   },
   "dependencies": {
-    "pocketbase": "^0.9.1"
+    "@felte/validator-yup": "^1.0.10",
+    "felte": "^1.2.6",
+    "pocketbase": "^0.9.1",
+    "yup": "^0.32.11"
   }
 }
