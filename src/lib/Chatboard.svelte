@@ -55,17 +55,24 @@
     <UsersList bind:isCreate />
 {:else} -->
 <div class="flex">
-    <div class="w-1/3 p-4">
+    <div
+        class="w-full md:w-1/3 p-4 md:block"
+        class:hidden={$currentGroup != null}
+    >
         <div class="mb-8 flex items-center text-white justify-between">
             <div class="flex items-center gap-x-4">
                 <img
-                    src={`https://avatars.dicebear.com/api/identicon/${$currentUser.name}.svg`}
+                    src={`https://avatars.dicebear.com/api/identicon/${
+                        $currentUser.firstName + " " + $currentUser.lastName
+                    }.svg`}
                     alt="avatar"
-                    class="rounded-full h-14 border-2 p-2 cursor-pointer"
+                    class="rounded-full h-16 border-2 p-2 cursor-pointer"
                     on:click={() => (showModal = true)}
                     on:keydown
                 />
-                <p class="text-bold text-lg">{$currentUser.name}</p>
+                <p class="text-bold text-lg">
+                    {$currentUser.firstName + " " + $currentUser.lastName}
+                </p>
             </div>
             <button
                 class="rounded-md text-2xl font-bold bg-gray-500 text-white p-3"
@@ -74,7 +81,9 @@
             >
             {#if showModal}
                 <Modal on:close={() => (showModal = false)}>
-                    <h2 slot="header">{$currentUser.name}</h2>
+                    <h2 slot="header">
+                        {$currentUser.firstName + " " + $currentUser.lastName}
+                    </h2>
                     <div
                         class="flex items-center gap-2 hover:text-red-400 font-semibold text-red-500 transition-colors duration-200 mt-2"
                     >
@@ -116,7 +125,11 @@
             </div>
         {/if}
     </div>
-    <div class="w-2/3">
+    <div
+        class="w-full md:w-2/3"
+        class:hidden={$currentGroup == null}
+        class:block={$currentGroup != null}
+    >
         {#if $currentGroup}
             <Chatroom />
         {/if}

@@ -5,7 +5,9 @@
 
     onMount(async () => {
         // TODO: Implement friends system and only query for friends
-        const usersList = await pb.collection("users").getList();
+        const usersList = await pb
+            .collection("users")
+            .getList(1, 50, { sort: "firstName" });
         users = usersList.items.filter((user) => user.id !== $currentUser.id);
     });
 
@@ -45,6 +47,7 @@
         />
         {#each users as user (user.id)}
             {@const userSelected = selectedUsers.includes(user.id)}
+            {@const name = user.firstName + " " + user.lastName}
             <div
                 class={"flex items-center gap-3 py-2 px-4 cursor-pointer hover:bg-gray-200/10 rounded-lg w-full"}
                 on:click={() => {
@@ -60,13 +63,13 @@
             >
                 <div class="rounded-full p-2 bg-white">
                     <img
-                        src={`https://avatars.dicebear.com/api/identicon/${user.name}.svg`}
+                        src={`https://avatars.dicebear.com/api/identicon/${name}.svg`}
                         alt=""
                         width="50"
                         class="rounded-full"
                     />
                 </div>
-                <p class="font-bold">{user.name}</p>
+                <p class="font-bold">{name}</p>
                 <div class="text-xl" class:text-green-300={userSelected}>
                     <Icon
                         icon={userSelected

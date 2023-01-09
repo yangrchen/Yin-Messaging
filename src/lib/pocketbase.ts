@@ -11,6 +11,5 @@ export const currentGroup = writable<Group>();
 export const groups = writable<Group[]>([]);
 
 pb.authStore.onChange((auth) => {
-    console.log('authStore changed', auth);
     currentUser.set(pb.authStore.model);
 })

@@ -57,6 +57,14 @@
             on:submit|preventDefault={signUp}
             class="flex flex-col text-white gap-4 w-full md:w-2/3 lg:w-1/3"
         >
+            <button
+                type="button"
+                on:click={() => {
+                    isRegistering = false;
+                }}
+            >
+                <Icon icon="material-symbols:arrow-back" class="text-2xl" />
+            </button>
             <div class="flex gap-4 border-2 rounded-full px-4 items-center">
                 <Icon icon="mdi:user" class="text-2xl" />
                 <input
@@ -162,7 +170,7 @@
             >
             <p class="text-sm text-center">
                 Don't have an account with us? <span
-                    class="text-purple-400"
+                    class="text-purple-400 cursor-pointer"
                     on:click={() => {
                         username = "";
                         password = "";
