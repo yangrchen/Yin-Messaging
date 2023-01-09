@@ -71,7 +71,6 @@
             await pb.collection("users").authWithPassword(username, password);
         } catch (err) {
             clientError = err as ClientResponseError;
-            console.trace({ clientError });
         }
     }
 
@@ -90,7 +89,6 @@
             await login(values);
         } catch (err) {
             clientError = err as ClientResponseError;
-            console.trace({ clientError });
         }
     }
 </script>

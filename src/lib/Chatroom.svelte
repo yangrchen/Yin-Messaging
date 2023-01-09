@@ -11,6 +11,7 @@
         day: "numeric",
         year: "numeric",
     });
+    // TODO: Add custom types for messagesByDate
     let messagesByDate: Object = {};
     let unsubscribe: () => void;
     $: $currentGroup && getMessages();
@@ -48,8 +49,13 @@
     afterUpdate(() => {
         if (autoscroll) chatbox.scrollTo(0, chatbox.scrollHeight);
     });
+    onDestroy(() => {
+        console.count("unmounted chatroom");
+        unsubscribe();
+    });
 
     const groupMessages = (messages: any[]) => {
+        messagesByDate = {};
         messages.forEach((message) => {
             const createdDate = new Date(message.created).toLocaleDateString(
                 "en-US",
@@ -58,9 +64,10 @@
             if (createdDate in messagesByDate) {
                 messagesByDate[createdDate].push(message);
             } else {
-                messagesByDate[createdDate] = [];
+                messagesByDate[createdDate] = [message];
             }
         });
+        messagesByDate = messagesByDate;
     };
     async function getMessages() {
         const messagesList = await pb.collection("messages").getList(1, 1000, {
@@ -68,7 +75,6 @@
             sort: "created",
             expand: "sender",
         });
-        // messages = messagesList.items;
         groupMessages(messagesList.items);
     }
     async function handleSubmit() {
@@ -87,12 +93,8 @@
             inputText = "";
         } catch (err) {
             // TODO: Handle error
-            console.log(err);
         }
     }
-    onDestroy(() => {
-        unsubscribe();
-    });
 </script>
 
 <div class="mx-2 overflow-hidden mt-6 text-white">

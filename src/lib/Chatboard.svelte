@@ -36,6 +36,10 @@
                 }
             });
     });
+    onDestroy(() => {
+        console.count("unmounted chatboard");
+        unsubscribe();
+    });
 
     function changeGroup(group: Group) {
         if ($currentGroup?.id === group.id) return;
@@ -44,11 +48,8 @@
 
     async function signOut() {
         pb.authStore.clear();
+        $currentGroup = null;
     }
-
-    onDestroy(() => {
-        unsubscribe();
-    });
 </script>
 
 <!-- {#if isCreate}
