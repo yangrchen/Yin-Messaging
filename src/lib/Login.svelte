@@ -95,10 +95,8 @@
     }
 </script>
 
-<h1 class="absolute text-white text-4xl text-center top-24 left-0 right-0">
-    Yin Messaging
-</h1>
 <div class="flex flex-col items-center h-full justify-center">
+    <h1 class="text-white mb-20 text-4xl text-center">Yin Messaging</h1>
     {#if clientError}
         {#if Object.keys(clientError.data.data).length}
             {#each Object.keys(clientError.data.data) as errorKey}
@@ -132,12 +130,9 @@
                 on:click={() => {
                     isRegistering = false;
                 }}
-                class="w-fit"
+                class="w-fit self-start"
             >
-                <Icon
-                    icon="material-symbols:arrow-back"
-                    class="text-2xl w-fit"
-                />
+                <Icon icon="material-symbols:arrow-back" class="text-2xl" />
             </button>
             <div class="flex gap-4 border-2 rounded-full px-4 items-center">
                 <Icon icon="mdi:user" class="text-2xl" />

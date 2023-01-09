@@ -3,15 +3,19 @@
     import { onMount, onDestroy, beforeUpdate, afterUpdate } from "svelte";
     import { pb, currentUser, currentGroup } from "./pocketbase";
 
-    let messages = [];
     let inputText = "";
     let chatbox: HTMLElement;
     let autoscroll;
+    const today = new Date().toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+    });
+    let messagesByDate: Object = {};
     let unsubscribe: () => void;
     $: $currentGroup && getMessages();
 
     onMount(async () => {
-        console.log("chatroom opened");
         unsubscribe = await pb
             .collection("messages")
             .subscribe("*", async ({ action, record }) => {
@@ -21,7 +25,14 @@
                             .collection("users")
                             .getOne(record.sender);
                         record.expand = { sender };
-                        messages = [...messages, record];
+                        if (today in messagesByDate) {
+                            messagesByDate[today] = [
+                                ...messagesByDate[today],
+                                record,
+                            ];
+                        } else {
+                            messagesByDate[today] = [record];
+                        }
                         chatbox.scrollTo(0, chatbox.scrollHeight);
                     }
                 }
@@ -37,13 +48,28 @@
     afterUpdate(() => {
         if (autoscroll) chatbox.scrollTo(0, chatbox.scrollHeight);
     });
+
+    const groupMessages = (messages: any[]) => {
+        messages.forEach((message) => {
+            const createdDate = new Date(message.created).toLocaleDateString(
+                "en-US",
+                { month: "short", day: "numeric", year: "numeric" }
+            );
+            if (createdDate in messagesByDate) {
+                messagesByDate[createdDate].push(message);
+            } else {
+                messagesByDate[createdDate] = [];
+            }
+        });
+    };
     async function getMessages() {
         const messagesList = await pb.collection("messages").getList(1, 1000, {
             filter: `group='${$currentGroup.id}'`,
             sort: "created",
             expand: "sender",
         });
-        messages = messagesList.items;
+        // messages = messagesList.items;
+        groupMessages(messagesList.items);
     }
     async function handleSubmit() {
         try {
@@ -77,27 +103,43 @@
         <h2>{$currentGroup.title}</h2>
     </div>
     <div
-        class="h-[70vh] flex flex-col overflow-y-scroll px-5 mt-8"
+        class="h-[70vh] flex flex-col overflow-y-scroll px-5 mt-8 gap-y-2"
         bind:this={chatbox}
     >
-        {#each messages as message}
-            {@const isCurrentUser =
-                message.expand?.sender?.id === $currentUser.id}
-            <div class="flex gap-2" class:self-end={isCurrentUser}>
-                {#if !isCurrentUser}
-                    <img
-                        src={`https://avatars.dicebear.com/api/identicon/${message.expand?.sender.name}.svg`}
-                        class="h-10 rounded-full bg-white p-1"
-                        alt=""
-                    />
-                {/if}
-                <p
-                    class="bg-blue-400 mb-4 max-w-fit p-2 rounded-tl rounded-tr rounded-bl"
-                    class:bg-gray-400={!isCurrentUser}
-                >
-                    {message.text}
-                </p>
-            </div>
+        {#each Object.entries(messagesByDate) as [date, messages]}
+            <h2
+                class="rounded-full bg-blue-900 self-center py-1 px-4 text-bold my-6"
+            >
+                {date}
+            </h2>
+            {#each messages as message}
+                {@const isCurrentUser =
+                    message.expand?.sender?.id === $currentUser.id}
+                {@const messageDate = new Date(message.created).toLocaleString(
+                    "en-US",
+                    { timeStyle: "short" }
+                )}
+                <div class="flex gap-2" class:self-end={isCurrentUser}>
+                    {#if !isCurrentUser}
+                        <img
+                            src={`https://avatars.dicebear.com/api/identicon/${message.expand?.sender.name}.svg`}
+                            class="h-10 rounded-full bg-white p-1"
+                            alt=""
+                        />
+                    {/if}
+                    <div
+                        class="flex gap-4 bg-blue-400 max-w-fit p-2 rounded-tl rounded-tr rounded-bl relative"
+                        class:bg-gray-600={!isCurrentUser}
+                    >
+                        <p>
+                            {message.text}
+                        </p>
+                        <small class="text-xs text-gray-200 self-end"
+                            >{messageDate}</small
+                        >
+                    </div>
+                </div>
+            {/each}
         {/each}
     </div>
     <form
